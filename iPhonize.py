@@ -197,42 +197,38 @@ for k in file_list:
 		#Create a contact
 		C=Contact()
 		
-		source=open(path+"\\"+k,"r")
-		dest=open(path+"\\"+k[:-4]+" - iphonize.vcf","w")
-		
-		#Read lines and fill the instance members
-		line=source.readline()
-		while line != "":
-			#Parse only valid data
-			if line != "END:VCARD\n" and line != "BEGIN:VCARD\n" and line[0:8] != "VERSION:":
-				C.parse(line)
+		with open(path+"\\"+k,"r") as source:
+			with open(path+"\\"+k[:-4]+" - iphonize.vcf","w") as dest:
+				#Read lines and fill the instance members
+				line=source.readline()
+				while line != "":
+					#Parse only valid data
+					if line != "END:VCARD\n" and line != "BEGIN:VCARD\n" and line[0:8] != "VERSION:":
+						C.parse(line)
 			
-			#A contact was finished to be acquired
-			if line == "END:VCARD\n":
-				#C.print_data()
-				collectedcontacts.append(C)
-				C=Contact()	#Create new contact object
+					#A contact was finished to be acquired
+					if line == "END:VCARD\n":
+						collectedcontacts.append(C)
+						C=Contact()	#Create new contact object
 				
-			#sample new line
-			line=source.readline()
+					#sample new line
+					line=source.readline()
 		
-		#Now all contacts in the current file were acquired. Print some infos
-		print("Found "+str(len(collectedcontacts))+" contact in file '"+k+"'")
+				#Now all contacts in the current file were acquired. Print some infos
+				print("Found "+str(len(collectedcontacts))+" contact in file '"+k+"'")
 		
-				
-		#Create an "iphonize" *.vcf with all contacts
-		header(dest)
-		for i in collectedcontacts:
-			iphonize(dest,i)
-		tail(dest)
+				#Create an "iphonize" *.vcf with all contacts
+				header(dest)
+				for i in collectedcontacts:
+					iphonize(dest,i)
+				tail(dest)
 		
-		#Close files
-		source.close()
-		dest.close()
+				#Close files
+				source.close()
+				dest.close()
 		
-		
-		#Reset contacts
-		collectedcontacts=[]
+				#Reset contacts
+				collectedcontacts=[]
 		
 		
 		
