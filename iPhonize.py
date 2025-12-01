@@ -164,6 +164,22 @@ class Contact:
 				# anniv=riga
 				# prosegui=18
 				
+#Write header of *.vcf file
+def header(file):
+	file.write("BEGIN:VCARD\n")
+	file.write("VERSION:3.0\n")
+	file.write("PRODID:-//Apple Inc.//iPhone OS 15.7.7//EN\n")
+
+#Write tail of *.vcf file
+def tail(file):
+	dest.write("END:VCARD\n")
+
+#iphonize function
+def iphonize(file,contact):
+	file.write(contact.name)
+	file.write(contact.displayname)
+	file.write(contact.nickname)
+
 		
 #Main
 collectedcontacts=[]	#Contact collected in the current file
@@ -202,7 +218,19 @@ for k in file_list:
 		
 		#Now all contacts in the current file were acquired. Print some infos
 		print("Found "+str(len(collectedcontacts))+" contact in file '"+k+"'")
-			
+		
+				
+		#Create an "iphonize" *.vcf with all contacts
+		header(dest)
+		for i in collectedcontacts:
+			iphonize(dest,i)
+		tail(dest)
+		
+		#Close files
+		source.close()
+		dest.close()
+		
+		
 		#Reset contacts
 		collectedcontacts=[]
 		
