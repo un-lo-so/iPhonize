@@ -21,8 +21,7 @@ class Status(Enum):
 	NOTE = auto()
 	TITLE = auto()
 	ROLE = auto()
-	DEPARTMENT = auto()
-	ORGNAME = auto()
+	ORG = auto()
 	INSTANTMESSAGING = auto()
 
 class Contact:
@@ -67,8 +66,7 @@ class Contact:
 		#Organization property
 		self.title=""
 		self.role=""
-		self.org_name=""
-		self.department=""
+		self.org=""
 		
 		#Instant messaging
 		self.im=[]
@@ -93,30 +91,32 @@ class Contact:
 		if line[0:4]=="UID:":
 			self.uid=line
 			self.LastAttrAcq=Status.UID
-	
+			
+		if line[0:4]=="ORG:":
+			self.org=line
+			self.LastAttrAcq=Status.ORG
+		
+		if line[0:5]=="ROLE:":
+			self.role=line
+			self.LastAttrAcq=Status.ROLE
+		
+		if line[0:6]=="TITLE:":
+			self.title=line
+			self.LastAttrAcq=Status.TITLE
+				
 	def print_data(self):
 		print("Name line => "+self.name)
 		print("Displayname line => "+self.displayname)
 		print("Nickname line => "+self.nickname)
 		print("UID line => "+self.uid)
 			
+		print("ORG line => "+self.org)		
+		print("ROLE line => "+self.role)	
+		print("TITLE line => "+self.title)	
 			
 			
 			
 			
-			
-			
-			# if line[0:4]=="ORG:":
-				# org=riga
-				# prosegui=4
-				
-			# if line[0:5]=="ROLE:":
-				# ruolo=riga
-				# prosegui=5
-			
-			# if line[0:6]=="TITLE:":
-				# titolo=riga
-				# prosegui=6
 			
 			# if line[0:5]=="NOTE:":
 				# note=riga
@@ -179,6 +179,17 @@ def iphonize(file,contact):
 	file.write(contact.name)
 	file.write(contact.displayname)
 	file.write(contact.nickname)
+	
+	dest.write(contact.org)
+	##process role and title
+	if contact.role=="" and contact.title== "":
+		None 
+	if contact.role=="" and contact.title!= "":
+		dest.write(contact.title)
+	if contact.role!="" and contact.title== "":
+		dest.write("TITLE:"+contact.role[5:])
+	if contact.role!="" and contact.title!= "":
+		dest.write(contact.title[:-1]+" "+contact.role[5:])
 
 		
 #Main
@@ -216,11 +227,12 @@ for k in file_list:
 		
 				#Now all contacts in the current file were acquired. Print some infos
 				print("Found "+str(len(collectedcontacts))+" contact in file '"+k+"'")
-		
+				
 				#Create an "iphonize" *.vcf with all contacts
 				header(dest)
 				for i in collectedcontacts:
 					iphonize(dest,i)
+					i.print_data()
 				tail(dest)
 		
 				#Close files
