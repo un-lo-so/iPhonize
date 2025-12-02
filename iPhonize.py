@@ -124,6 +124,11 @@ class Contact:
 			self.custom4=line	
 			self.LastAttrAcq=Status.CUSTOM4	
 			
+		if line[0:2]=="TZ":
+			#This file is not handled
+			self.timezone=line
+			self.LastAttrAcq=Status.CUSTOM4
+			
 		#Handle telephone fields
 		if line[0:3]=="TEL":
 			if line[3:15]==";VALUE=TEXT:":
@@ -180,12 +185,10 @@ class Contact:
 				print("Preferred:")
 			print("EMAIL: "+self.emailtype[i]+" "+self.emailaddr[i])
 		
+		print("Time zone => "+self.timezone)
 		
 			
 			
-			# if line[0:4]=="TEL:":
-				# tel.append(riga)
-				# prosegui=12
 				
 			# if line[0:4]=="ADR:":
 				# addr.append(riga)
@@ -194,13 +197,7 @@ class Contact:
 			# if line[0:4]=="URL:":
 				# web.append(riga)
 				# prosegui=14
-			
-			# if line[0:6]=="EMAIL:":
-				# email.append(riga)
-				# prosegui=15
-				
-			
-				
+							
 			# if line[0:5]==BDAY:":
 				# bday=riga
 				# prosegui=17
