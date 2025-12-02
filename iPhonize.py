@@ -32,8 +32,9 @@ class Contact:
 		self.uid=""
 		
 		#Handling emails
-		self.emailtypes=[]
+		self.emailtype=[]
 		self.emailaddr=[]
+		self.prefemail = 0
 		
 		#Handling URLs
 		self.urltype=[]
@@ -137,7 +138,22 @@ class Contact:
 				#Chatch from the first character AFTER ":"
 				temp=line[line.find(":",16)+1:]
 				self.tel.append(temp)
-							
+			
+		if line[0:5]=="EMAIL":
+			#Check if this is the PREF email
+			if line.find("PREF=1")!=-1:
+				self.prefemail = len(self.emailaddr)			
+
+			#Check for attribute
+			if line.find("TYPE=")!=-1:
+				base_index=line.find("TYPE=")+5
+				self.emailtype.append(line[base_index:base_index+4])
+				self.emailaddr.append(line[line.find(":")+1:])
+			else:
+				#There aren't other parameters
+				self.emailtype.append("NOTHING")
+				self.emailaddr.append(line[line.find(":")+1:])
+											
 	def print_data(self):
 		print("Name line => "+self.name)
 		print("Displayname line => "+self.displayname)
@@ -157,8 +173,14 @@ class Contact:
 		#Print all telephone
 		for i in range(0,len(self.tel)):
 			print("TELEPHONE: "+self.teltype[i]+" "+self.tel[i])
-			
-			
+		
+		#Print all emails
+		for i in range(0,len(self.emailaddr)):
+			if self.prefemail==i:
+				print("Preferred:")
+			print("EMAIL: "+self.emailtype[i]+" "+self.emailaddr[i])
+		
+		
 			
 			
 			# if line[0:4]=="TEL:":
@@ -208,7 +230,7 @@ def iphonize(file,contact):
 	file.write(contact.nickname)
 	
 	dest.write(contact.org)
-	##process role and title
+	#process role and title
 	if contact.role=="" and contact.title== "":
 		None 
 	if contact.role=="" and contact.title!= "":
@@ -217,6 +239,24 @@ def iphonize(file,contact):
 		dest.write("TITLE:"+contact.role[5:])
 	if contact.role!="" and contact.title!= "":
 		dest.write(contact.title[:-1]+" "+contact.role[5:])
+	
+	#Write email fields
+	for i in range(0,len(contact.emailaddr)):
+		temp="EMAIL;type=INTERNET"
+		if contact.emailtype[i]=="home":
+			temp=temp+";type=HOME"
+		if contact.emailtype[i]=="work":
+			temp=temp+";type=WORK"
+		
+		if contact.prefemail==i:
+			temp=temp+";type=pref"
+		
+		temp=temp+":"
+		
+		temp=temp+contact.emailaddr[i]
+			
+		dest.write(temp)
+		
 	
 	#Write telephone fields
 	for i in range(0,len(contact.tel)):
