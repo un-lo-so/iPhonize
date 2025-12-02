@@ -39,8 +39,7 @@ class Contact:
 		#Handling URLs
 		self.urltype=[]
 		self.urladdr=[]
-		self.url_index=0
-		
+				
 		#Handling addresses
 		self.addrtype=[]
 		self.address=[]
@@ -143,7 +142,7 @@ class Contact:
 				#Chatch from the first character AFTER ":"
 				temp=line[line.find(":",16)+1:]
 				self.tel.append(temp)
-			
+						
 		if line[0:5]=="EMAIL":
 			#Check if this is the PREF email
 			if line.find("PREF=1")!=-1:
@@ -158,7 +157,22 @@ class Contact:
 				#There aren't other parameters
 				self.emailtype.append("NOTHING")
 				self.emailaddr.append(line[line.find(":")+1:])
-											
+						
+		#Parse URL fields
+		if line[0:3]=="URL":
+			if line[3]==":" :
+				#There aren't other attributes
+				self.urltype.append("NOTHING")
+				self.urladdr.append(line[4:])
+			else:
+				#There is a parameter
+				self.urltype.append(line[line.find(":")-4:line.find(":")])
+				self.urladdr.append(line[line.find(":")+1:])
+			
+			self.LastAttrAcq=Status.URL
+			
+
+		
 	def print_data(self):
 		print("Name line => "+self.name)
 		print("Displayname line => "+self.displayname)
@@ -187,7 +201,9 @@ class Contact:
 		
 		print("Time zone => "+self.timezone)
 		
-			
+		for i in range(0,len(self.urladdr)):
+			print("URL: "+self.urltype[i]+" "+self.urladdr[i])
+		
 			
 				
 			# if line[0:4]=="ADR:":
@@ -253,8 +269,7 @@ def iphonize(file,contact):
 		temp=temp+contact.emailaddr[i]
 			
 		dest.write(temp)
-		
-	
+			
 	#Write telephone fields
 	for i in range(0,len(contact.tel)):
 		if contact.teltype[i]=="work":
@@ -271,7 +286,19 @@ def iphonize(file,contact):
 			dest.write("TEL;type=PAGER:"+contact.tel[i])
 		if contact.teltype[i]=="NOTHING":
 			dest.write("TEL:"+contact.tel[i])
-				
+								
+	##Process URLS			
+	for i in range(0,len(contact.urladdr)):
+		if contact.urltype[i]=="NOTHING":
+			dest.write("item"+str(itemcounter)+".URL:"+contact.urladdr[i])
+			dest.write("item"+str(itemcounter)+".X-ABLabel:_$!<HomePage>!$_\n")
+			itemcounter=itemcounter+1			
+		if contact.urltype[i]=="work":
+			dest.write("URL;type=HOME:"+contact.urladdr[i])
+		if contact.urltype[i]=="home":
+			dest.write("URL;type=WORK:"+contact.urladdr[i])
+
+	
 	##Process notes and custom fields	
 	if contact.note!="":
 		temp = contact.note[:-1]
