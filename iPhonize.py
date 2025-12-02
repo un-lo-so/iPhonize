@@ -103,6 +103,33 @@ class Contact:
 		if line[0:6]=="TITLE:":
 			self.title=line
 			self.LastAttrAcq=Status.TITLE
+						
+		if line[0:5]=="NOTE:":
+			self.note=line
+			self.LastAttrAcq=Status.NOTE
+			
+		if line[0:10]=="X-CUSTOM1;":
+			self.custom1=line	
+			self.LastAttrAcq=Status.CUSTOM1
+			
+		if line[0:10]=="X-CUSTOM2;":
+			self.custom2=line	
+			self.LastAttrAcq=Status.CUSTOM2	
+			
+		if line[0:10]=="X-CUSTOM3;":
+			self.custom3=line	
+			self.LastAttrAcq=Status.CUSTOM3	
+			
+		if line[0:10]=="X-CUSTOM4;":
+			self.custom4=line	
+			self.LastAttrAcq=Status.CUSTOM4	
+			
+			
+			
+				
+				
+				
+				
 				
 	def print_data(self):
 		print("Name line => "+self.name)
@@ -114,7 +141,11 @@ class Contact:
 		print("ROLE line => "+self.role)	
 		print("TITLE line => "+self.title)	
 			
-			
+		print("NOTE line => "+self.note)
+		print("Custom1 line => "+self.custom1)
+		print("Custom2 line => "+self.custom2)
+		print("Custom3 line => "+self.custom3)
+		print("Custom4 line => "+self.custom4)
 			
 			
 			
@@ -176,6 +207,9 @@ def tail(file):
 
 #iphonize function
 def iphonize(file,contact):
+	#temporary field for note field building
+	temp = ""
+	
 	file.write(contact.name)
 	file.write(contact.displayname)
 	file.write(contact.nickname)
@@ -190,6 +224,44 @@ def iphonize(file,contact):
 		dest.write("TITLE:"+contact.role[5:])
 	if contact.role!="" and contact.title!= "":
 		dest.write(contact.title[:-1]+" "+contact.role[5:])
+		
+	##Process notes and custom fields	
+	if contact.note!="":
+		temp = contact.note[:-1]
+	
+	if contact.custom1!="":
+		buffer=contact.custom1[21:]
+		if temp!="":
+			temp=temp+"\\n\\nPersonalizzato 1:\\n"+buffer[:-1]
+		else:
+			temp="NOTE:Personalizzato 1:\\n"+buffer[:-1]
+			
+	if contact.custom2!="":
+		buffer=contact.custom2[21:]
+		if temp!="":
+			temp=temp+"\\n\\nPersonalizzato 2:\\n"+buffer[:-1]
+		else:
+			temp="NOTE:Personalizzato 2:\\n"+buffer[:-1]
+		
+	if contact.custom3!="":
+		buffer=contact.custom3[21:]
+		if temp!="":
+			temp=temp+"\\n\\nPersonalizzato 3:\\n"+buffer[:-1]
+		else:
+			temp="NOTE:Personalizzato 3:\\n"+buffer[:-1]	
+		
+	if contact.custom4!="":
+		buffer=contact.custom4[21:]
+		if temp!="":
+			temp=temp+"\\n\\nPersonalizzato 4:\\n"+buffer[:-1]
+		else:
+			temp="NOTE:Personalizzato 4:\\n"+buffer[:-1]	
+	
+	if temp!="":
+		dest.write(temp)
+		dest.write("\n")
+	
+	
 
 		
 #Main
