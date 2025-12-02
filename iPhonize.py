@@ -34,7 +34,6 @@ class Contact:
 		#Handling emails
 		self.emailtypes=[]
 		self.emailaddr=[]
-		self.email_index=0
 		
 		#Handling URLs
 		self.urltype=[]
@@ -124,13 +123,21 @@ class Contact:
 			self.custom4=line	
 			self.LastAttrAcq=Status.CUSTOM4	
 			
-			
-			
+		#Handle telephone fields
+		if line[0:3]=="TEL":
+			if line[3:15]==";VALUE=TEXT:":
+				#There aren't attributes
+				self.teltype.append("NOTHING")
+				self.tel.append(line[15:])
+			else:
+				#There is an attribute
+				temp=line[9:line.find(";",10,15)]
+				self.teltype.append(temp)
 				
-				
-				
-				
-				
+				#Chatch from the first character AFTER ":"
+				temp=line[line.find(":",16)+1:]
+				self.tel.append(temp)
+							
 	def print_data(self):
 		print("Name line => "+self.name)
 		print("Displayname line => "+self.displayname)
@@ -146,28 +153,13 @@ class Contact:
 		print("Custom2 line => "+self.custom2)
 		print("Custom3 line => "+self.custom3)
 		print("Custom4 line => "+self.custom4)
+		
+		#Print all telephone
+		for i in range(0,len(self.tel)):
+			print("TELEPHONE: "+self.teltype[i]+" "+self.tel[i])
 			
 			
 			
-			# if line[0:5]=="NOTE:":
-				# note=riga
-				# prosegui=7
-			
-			# if line[0:10]"X-CUSTOM1:":
-				# pers1=riga
-				# prosegui=8
-			
-			# if line[0:10]"X-CUSTOM2:":
-				# pers2=riga
-				# prosegui=9
-			
-			# if line[0:10]=="X-CUSTOM3:":
-				# pers3=riga
-				# prosegui=10
-			
-			# if line[0:10]=="X-CUSTOM4:":
-				# pers4=riga
-				# prosegui=11
 			
 			# if line[0:4]=="TEL:":
 				# tel.append(riga)
@@ -207,8 +199,9 @@ def tail(file):
 
 #iphonize function
 def iphonize(file,contact):
-	#temporary field for note field building
+	#temporary field for note and other line building
 	temp = ""
+	itemcounter = 1
 	
 	file.write(contact.name)
 	file.write(contact.displayname)
@@ -224,7 +217,24 @@ def iphonize(file,contact):
 		dest.write("TITLE:"+contact.role[5:])
 	if contact.role!="" and contact.title!= "":
 		dest.write(contact.title[:-1]+" "+contact.role[5:])
-		
+	
+	#Write telephone fields
+	for i in range(0,len(contact.tel)):
+		if contact.teltype[i]=="work":
+			dest.write("TEL;type=WORK;type=VOICE;type=pref:"+contact.tel[i])
+		if contact.teltype[i]=="home":
+			dest.write("TEL;type=HOME;type=VOICE:"+contact.tel[i])
+		if contact.teltype[i]=="cell":
+			dest.write("TEL;type=CELL;type=VOICE:"+contact.tel[i])
+		if contact.teltype[i]=="fax":
+			dest.write("item"+str(itemcounter)+".TEL:"+contact.tel[i])
+			dest.write("item"+str(itemcounter)+".X-ABLabel:fax\n")
+			itemcounter=itemcounter+1
+		if contact.teltype[i]=="pager":	
+			dest.write("TEL;type=PAGER:"+contact.tel[i])
+		if contact.teltype[i]=="NOTHING":
+			dest.write("TEL:"+contact.tel[i])
+				
 	##Process notes and custom fields	
 	if contact.note!="":
 		temp = contact.note[:-1]
@@ -257,9 +267,11 @@ def iphonize(file,contact):
 		else:
 			temp="NOTE:Personalizzato 4:\\n"+buffer[:-1]	
 	
+	#Write note field
 	if temp!="":
 		dest.write(temp)
 		dest.write("\n")
+	
 	
 	
 
