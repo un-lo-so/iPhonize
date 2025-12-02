@@ -34,8 +34,7 @@ class Contact:
 		#Handling emails
 		self.emailtype=[]
 		self.emailaddr=[]
-		self.prefemail = 0
-		
+				
 		#Handling URLs
 		self.urltype=[]
 		self.urladdr=[]
@@ -143,6 +142,7 @@ class Contact:
 				#Chatch from the first character AFTER ":"
 				temp=line[line.find(":",16)+1:]
 				self.tel.append(temp)
+			self.LastAttrAcq=Status.TEL
 			
 		if line[0:5]=="EMAIL":
 			#Check if this is the PREF email
@@ -158,6 +158,7 @@ class Contact:
 				#There aren't other parameters
 				self.emailtype.append("NOTHING")
 				self.emailaddr.append(line[line.find(":")+1:])
+			self.LastAttrAcq=Status.EMAIL
 											
 	def print_data(self):
 		print("Name line => "+self.name)
