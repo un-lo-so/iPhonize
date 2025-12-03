@@ -34,7 +34,8 @@ class Contact:
 		#Handling emails
 		self.emailtype=[]
 		self.emailaddr=[]
-				
+		self.prefemail = 0
+		
 		#Handling URLs
 		self.urltype=[]
 		self.urladdr=[]
@@ -71,6 +72,64 @@ class Contact:
 		
 		#Last attribute Acquired
 		self.LastAttrAcq=Status.NONE
+		
+	def _parse_date(self,line,dict):
+		#This function allow to parse a date and split it in a dictionary with 3 entries
+		#day, month, year. This function parse the line after colon character
+		#
+		#	A	M	G	Layout
+		#	0	0	0	<no field>
+		#	0	0	1	---XX				<= day
+		#	0	1	0	--XX				<= month
+		#	0	1	1	--XXXX				<= month,day
+		#	1	0	0	XXXX				<= year
+		#	1	0	1	<not allowed
+		#	1	1	0	XXXX-XX				<= year,month 
+		#	1	1	1	XXXXXXXX			<= year,month,day
+		#Note:months and days have always two digits, year has always 4 digits
+	
+		#Index when the value of date field start
+		base_index = line.find(":")
+		
+		if line.count("-")==0:
+			#complete date or year only date
+			if len(line[base_index+1:])==8+1:	#+1 is the new line character
+				#complete date
+				dict["year"]=line[base_index+1:base_index+5]
+				dict["month"]=line[base_index+5:base_index+7]
+				dict["day"]=line[base_index+7:base_index+9]
+			
+			if len(line[base_index+1:])==4+1:	#+1 is the new line character
+				#year only date
+				dict["year"]=line[base_index+1:base_index+5]
+				dict["month"]=""
+				dict["day"]=""
+							
+		if line.count("-")==1:
+			#year,month date
+			dict["year"]=line[base_index+1:base_index+5]
+			dict["month"]=line[base_index+6:base_index+8]
+			dict["day"]=""
+			
+		if line.count("-")==2:
+			#month only or month,day date
+			dict["year"]=""
+			
+			if len(line[base_index+1:])==4+1:	#+1 is the new line character
+				#month only date
+				dict["month"]=line[base_index+3:base_index+5]
+				dict["day"]=""
+				
+			if len(line[base_index+1:])==6+1:	#+1 is the new line character
+				#month,day date
+				dict["month"]=line[base_index+3:base_index+5]
+				dict["day"]=line[base_index+5:base_index+7]
+			
+		if line.count("-")==3:
+			#day only date
+			dict["year"]=""
+			dict["month"]=""
+			dict["day"]=line[base_index+4:base_index+6]	
 		
 	def parse(self,line):
 		#Parse the content of the line
@@ -171,8 +230,11 @@ class Contact:
 				self.urladdr.append(line[line.find(":")+1:])
 			self.LastAttrAcq=Status.URL
 			
-		if line[0:4]="BDAY":
-				
+		if line[0:11]=="ANNIVERSARY":
+			dict={}		#dictionary for year, month and day data
+			self._parse_date(line[line.find(":"):],dict)
+			self.anniversary.append(dict)
+							
 	def print_data(self):
 		print("Name line => "+self.name)
 		print("Displayname line => "+self.displayname)
@@ -204,7 +266,8 @@ class Contact:
 		for i in range(0,len(self.urladdr)):
 			print("URL: "+self.urltype[i]+" "+self.urladdr[i])
 		
-			
+		for i in range(0,len(self.anniversary)):
+			print("ANNIVERSARY: YEAR="+self.anniversary[i]["year"]+"\t MONTH="+self.anniversary[i]["month"]+"\t DAY="+self.anniversary[i]["day"])
 				
 			# if line[0:4]=="ADR:":
 				# addr.append(riga)
@@ -228,56 +291,6 @@ def header(file):
 def tail(file):
 	dest.write("END:VCARD\n")
 
-def parse_date(line,dict):
-	#This function allow to parse a date and split it in a dictionary with 3 entries
-	#day, month, year. This function parse the line after colon character
-	#
-	#	A	M	G	Layout
-	#	0	0	0	<no field>
-	#	0	0	1	---XX				<= day
-	#	0	1	0	--XX				<= month
-	#	0	1	1	--XXXX				<= month,day
-	#	1	0	0	XXXX				<= year
-	#	1	0	1	<not allowed
-	#	1	1	0	XXXX-XX				<= year,month 
-	#	1	1	1	XXXXXXXX			<= year,month,day
-	#Note:months and days have always two digits, year has always 4 digits
-
-	#Index when the value of date field start
-	base_index = line.find(":")
-	
-	if line.count(-)==0:
-		#complete date
-		dict["year"]=line[base_index:base_index+4]
-		dict["month"]=line[base_index+4:base_index+6]
-		dict["day"]=line[base_index+6:base_index+8]
-		
-	if line.count(-)==1:
-		#year,month date
-		dict["year"]=line[base_index:base_index+4]
-		dict["month"]=line[base_index+5:base_index+7]
-		dict["day"]=""
-		
-		
-	if line.count(-)==2:
-		#month only or month,day date
-		dict["year"]=""
-		
-		if len(line(base_index:))==2:
-			#month only date
-			dict["month"]=line[base_index+2:]
-			dict["day"]=""
-			
-		if len(line(base_index:))==4:
-			#month,day date
-			dict["month"]=line[base_index+2:base_index+4]
-			dict["day"]=line[base_index+4:base_index+6]
-		
-	if line.count(-)==3:
-		#day date
-		dict["year"]=""
-		dict["month"]=""
-		dict["day"]=line[base_index+3:]
 
 #iphonize function
 def iphonize(file,contact):
