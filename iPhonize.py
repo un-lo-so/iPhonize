@@ -298,6 +298,9 @@ def iphonize(file,contact):
 	temp = ""
 	itemcounter = 1
 	
+	#Flag for preferred anniversary item
+	preferred = False
+	
 	file.write(contact.name)
 	file.write(contact.displayname)
 	file.write(contact.nickname)
@@ -312,6 +315,34 @@ def iphonize(file,contact):
 		dest.write("TITLE:"+contact.role[5:])
 	if contact.role!="" and contact.title!= "":
 		dest.write(contact.title[:-1]+" "+contact.role[5:])
+	
+	for i in range(0,len(contact.anniversary)):
+		#Allowable anniversaries have year, month, day or month and year
+		#OTHER CONFIGURATION ARE FORBIDDEN AND WILL NOT IMPORTED
+		if contact.anniversary[i]["year"]!="" and contact.anniversary[i]["month"]!="" and contact.anniversary[i]["day"]!="":
+			temp="item"+str(itemcounter)+".X-ABDATE"
+			if preferred == False:
+				#First item is the preferred item
+				temp=temp+";type=pref"
+				preferred = True
+			temp=temp+":"+contact.anniversary[i]["year"]+"-"+contact.anniversary[i]["month"]+"-"+contact.anniversary[i]["day"]+"\n"
+			dest.write(temp)
+			temp="item"+str(itemcounter)+".X-ABLabel:_$!<Anniversary>!$_\n"
+			dest.write(temp)
+			itemcounter=itemcounter+1
+			
+		if contact.anniversary[i]["year"]=="" and contact.anniversary[i]["month"]!="" and contact.anniversary[i]["day"]!="":
+			temp="item"+str(itemcounter)+".X-ABDATE;X-APPLE-OMIT-YEAR=1604"
+			if preferred == False:
+				#First item is the preferred item
+				temp=temp+";type=pref"
+				preferred = True				
+			temp=temp+":1604-"+contact.anniversary[i]["month"]+"-"+contact.anniversary[i]["day"]+"\n"
+			dest.write(temp)
+			temp="item"+str(itemcounter)+".X-ABLabel:_$!<Anniversary>!$_\n"
+			dest.write(temp)
+			itemcounter=itemcounter+1
+	temp = ""
 	
 	#Write email fields
 	for i in range(0,len(contact.emailaddr)):
@@ -329,7 +360,8 @@ def iphonize(file,contact):
 		temp=temp+contact.emailaddr[i]
 			
 		dest.write(temp)
-			
+	temp = ""
+	
 	#Write telephone fields
 	for i in range(0,len(contact.tel)):
 		if contact.teltype[i]=="work":
@@ -395,7 +427,7 @@ def iphonize(file,contact):
 	if temp!="":
 		dest.write(temp)
 		dest.write("\n")
-	
+		temp = ""
 	
 	
 
