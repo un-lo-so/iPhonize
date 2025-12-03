@@ -2,7 +2,7 @@
 A simple Python script to convert Thunderbird \*.vcf files into iOS address book compliant files 
 
 ## A brief history
-This Python script is a result of "my journey" in Python language: I use Python for my some academic projects or personal OS management stuffs, so, I decide to study this language in-depth.
+This Python script is a result of "my journey" in Python language: I use Python for some of my academic projects or personal OS management stuffs, so, I decide to study this language in-depth.
 
 One day I have realized that I had many address book in many devices: old backups, old hard disks, old mobile phones... so I decided to create only one address book to update anytime and mirroring it in any devices.
 
