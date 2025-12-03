@@ -234,7 +234,12 @@ class Contact:
 			dict={}		#dictionary for year, month and day data
 			self._parse_date(line[line.find(":"):],dict)
 			self.anniversary.append(dict)
-							
+		
+		if line[0:4]=="BDAY":
+			dict={}		#dictionary for year, month and day data
+			self._parse_date(line[line.find(":"):],dict)
+			self.birthday=dict
+		
 	def print_data(self):
 		print("Name line => "+self.name)
 		print("Displayname line => "+self.displayname)
@@ -268,18 +273,16 @@ class Contact:
 		
 		for i in range(0,len(self.anniversary)):
 			print("ANNIVERSARY: YEAR="+self.anniversary[i]["year"]+"\t MONTH="+self.anniversary[i]["month"]+"\t DAY="+self.anniversary[i]["day"])
-				
+		
+		print("BIRTHDAY: YEAR="+self.birthday["year"]+"\t MONTH="+self.birthday["month"]+"\t DAY="+self.birthday["day"])
+		
+
+		
 			# if line[0:4]=="ADR:":
 				# addr.append(riga)
 				# prosegui=13
 												
-			# if line[0:5]==BDAY:":
-				# bday=riga
-				# prosegui=17
-				
-			# if line[0:12]=="ANNIVERSARY:":
-				# anniv=riga
-				# prosegui=18
+			
 				
 #Write header of *.vcf file
 def header(file):
@@ -316,6 +319,15 @@ def iphonize(file,contact):
 	if contact.role!="" and contact.title!= "":
 		dest.write(contact.title[:-1]+" "+contact.role[5:])
 	
+	#Process birthday
+	if len(contact.birthday)!=0:
+		#process only valid birthday date
+		if contact.birthday["year"]!="" and contact.birthday["month"]!="" and contact.birthday["day"]!="":
+			dest.write("BDAY:"+contact.birthday["year"]+"-"+contact.birthday["month"]+"-"+contact.birthday["day"]+"\n")
+		
+		if contact.birthday["year"]=="" and contact.birthday["month"]!="" and contact.birthday["day"]!="":
+			dest.write("BDAY;X-APPLE-OMIT-YEAR=1604:1604-"+contact.birthday["month"]+"-"+contact.birthday["day"]+"\n")
+		
 	for i in range(0,len(contact.anniversary)):
 		#Allowable anniversaries have year, month, day or month and year
 		#OTHER CONFIGURATION ARE FORBIDDEN AND WILL NOT IMPORTED
@@ -481,10 +493,3 @@ for k in file_list:
 		
 				#Reset contacts
 				collectedcontacts=[]
-		
-		
-		
-		
-		
-		
-		
