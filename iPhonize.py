@@ -3,8 +3,6 @@ import country_code_3166
 from enum import Enum, auto
 
 #TODO LIST
-#handle fields on multiple lines
-#Handle nation in address fields correctly
 #check the correctness of pref field for every field		  
 
 class Status(Enum):
@@ -262,7 +260,9 @@ class Contact:
 		if line[0:1]==" ":
 			if self.LastAttrAcq==Status.ADDRESS:
 				self.address[-1]=self.address[-1][:-1]+line[1:]
-						
+			if self.LastAttrAcq==Status.NOTE:
+				self.note=self.note[:-1]+line[1:]
+
 	def print_data(self):
 		print("Name line => "+self.name)
 		print("Displayname line => "+self.displayname)
