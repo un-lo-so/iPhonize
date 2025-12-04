@@ -449,15 +449,29 @@ def iphonize(file,contact):
 	
 	#Process URLs			
 	for i in range(0,len(contact.urladdr)):
-		if contact.urltype[i]=="NOTHING":
-			dest.write("item"+str(itemcounter)+".URL:"+contact.urladdr[i])
-			dest.write("item"+str(itemcounter)+".X-ABLabel:_$!<HomePage>!$_\n")
-			itemcounter=itemcounter+1			
 		if contact.urltype[i]=="work":
-			dest.write("URL;type=HOME:"+contact.urladdr[i])
+			temp="URL;type=WORK"
+		
 		if contact.urltype[i]=="home":
-			dest.write("URL;type=WORK:"+contact.urladdr[i])
+			temp="URL;type=HOME"
+		
+		if contact.urltype[i]=="NOTHING":
+			temp="item"+str(itemcounter)+".URL"
+		
+		if preferred == False:
+			temp=temp+";type=pref"
+			preferred=True
+				
+		temp=temp+":"+contact.urladdr[i]
+		dest.write(temp)
+			
+		if contact.urltype[i]=="NOTHING":
+			temp="item"+str(itemcounter)+".X-ABLabel:_$!<HomePage>!$_\n"
+			dest.write(temp)
+			itemcounter=itemcounter+1			
+		
 	#Reset for other stuff
+	temp=""
 	preferred == False
 	
 	#Process notes and custom fields	
