@@ -188,7 +188,7 @@ class Contact:
 		if line[0:2]=="TZ":
 			#This file is not handled
 			self.timezone=line
-			self.LastAttrAcq=Status.CUSTOM4
+			self.LastAttrAcq=Status.TIMEZONE
 			
 		#Handle telephone fields
 		if line[0:3]=="TEL":
@@ -262,6 +262,14 @@ class Contact:
 				self.address[-1]=self.address[-1][:-1]+line[1:]
 			if self.LastAttrAcq==Status.NOTE:
 				self.note=self.note[:-1]+line[1:]
+			if self.LastAttrAcq==Status.CUSTOM1:
+				self.custom1=self.custom1[:-1]+line[1:]
+			if self.LastAttrAcq==Status.CUSTOM2:
+				self.custom2=self.custom2[:-1]+line[1:]
+			if self.LastAttrAcq==Status.CUSTOM3:
+				self.custom3=self.custom3[:-1]+line[1:]
+			if self.LastAttrAcq==Status.CUSTOM4:
+				self.custom4=self.custom4[:-1]+line[1:]
 
 	def print_data(self):
 		print("Name line => "+self.name)
