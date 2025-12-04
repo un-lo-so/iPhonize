@@ -1,4 +1,5 @@
 import os
+import country_code_3166
 from enum import Enum, auto
 
 #TODO LIST
@@ -425,7 +426,7 @@ def iphonize(file,contact):
 			preferred=True
 		temp=temp+":"+contact.address[i]
 		dest.write(temp)
-		temp="item"+str(itemcounter)+".X-ABADR:it\n"
+		temp="item"+str(itemcounter)+".X-ABADR:"+countrycodeinstance.get_country_code(str(contact.address[i][contact.address[i].rfind(";")+1:-1]))+"\n"
 		dest.write(temp)
 		itemcounter=itemcounter+1
 	#Reset for other stuff
@@ -488,6 +489,9 @@ def iphonize(file,contact):
 		
 #Main
 collectedcontacts=[]	#Contact collected in the current file
+#Extract contry code according to iso 3166. If a valid value isn't
+#found the instance return a fallback value (the string of constructor)
+countrycodeinstance=country_code_3166.country_code("Italia")
 
 #Path where original *.vcf are stored
 path="."
