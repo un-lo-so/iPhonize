@@ -21,3 +21,6 @@ For each file in the directory a new file with the same name but ` - iphonize.vc
 
 ## Caveats
 The instant messaging fields of Thunderbird address book will be skipped.
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
