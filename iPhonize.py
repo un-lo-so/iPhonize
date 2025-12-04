@@ -1,6 +1,11 @@
 import os
 from enum import Enum, auto
 
+#TODO LIST
+#handle fields on multiple lines
+#Handle nation in address fields correctly
+#check the correctness of pref field for every field		  
+
 class Status(Enum):
 	NONE = auto()
 	NAME = auto()
@@ -240,6 +245,23 @@ class Contact:
 			self._parse_date(line[line.find(":"):],dict)
 			self.birthday=dict
 		
+		if line[0:3]=="ADR":
+			#Check for attribute
+			if line.find("TYPE=")!=-1:
+				base_index=line.find("TYPE=")+5
+				self.addrtype.append(line[base_index:base_index+4])
+				self.address.append(line[line.find(":")+1:])
+			else:
+				#There aren't other parameters
+				self.addrtype.append("NOTHING")
+				self.address.append(line[line.find(":")+1:])
+			self.LastAttrAcq=Status.ADDRESS	
+			
+		#Field is in more than one line
+		if line[0:1]==" ":
+			if self.LastAttrAcq==Status.ADDRESS:
+				self.address[-1]=self.address[-1][:-1]+line[1:]
+						
 	def print_data(self):
 		print("Name line => "+self.name)
 		print("Displayname line => "+self.displayname)
@@ -274,16 +296,12 @@ class Contact:
 		for i in range(0,len(self.anniversary)):
 			print("ANNIVERSARY: YEAR="+self.anniversary[i]["year"]+"\t MONTH="+self.anniversary[i]["month"]+"\t DAY="+self.anniversary[i]["day"])
 		
-		print("BIRTHDAY: YEAR="+self.birthday["year"]+"\t MONTH="+self.birthday["month"]+"\t DAY="+self.birthday["day"])
-		
-
-		
-			# if line[0:4]=="ADR:":
-				# addr.append(riga)
-				# prosegui=13
-												
-			
+		if len(self.birthday)!=0:
+			print("BIRTHDAY: YEAR="+self.birthday["year"]+"\t MONTH="+self.birthday["month"]+"\t DAY="+self.birthday["day"])
 				
+		for i in range(0,len(self.address)):
+			print("ADDRESS: "+self.addrtype[i]+" "+self.address[i])
+						
 #Write header of *.vcf file
 def header(file):
 	file.write("BEGIN:VCARD\n")
@@ -342,7 +360,9 @@ def iphonize(file,contact):
 			temp="item"+str(itemcounter)+".X-ABLabel:_$!<Anniversary>!$_\n"
 			dest.write(temp)
 			itemcounter=itemcounter+1
-			
+		#Reset for other stuff
+		preferred == False	
+		
 		if contact.anniversary[i]["year"]=="" and contact.anniversary[i]["month"]!="" and contact.anniversary[i]["day"]!="":
 			temp="item"+str(itemcounter)+".X-ABDATE;X-APPLE-OMIT-YEAR=1604"
 			if preferred == False:
@@ -354,6 +374,8 @@ def iphonize(file,contact):
 			temp="item"+str(itemcounter)+".X-ABLabel:_$!<Anniversary>!$_\n"
 			dest.write(temp)
 			itemcounter=itemcounter+1
+	#Reset for other stuff
+	preferred == False			   
 	temp = ""
 	
 	#Write email fields
@@ -372,6 +394,7 @@ def iphonize(file,contact):
 		temp=temp+contact.emailaddr[i]
 			
 		dest.write(temp)
+	#Reset for other stuff
 	temp = ""
 	
 	#Write telephone fields
@@ -390,8 +413,26 @@ def iphonize(file,contact):
 			dest.write("TEL;type=PAGER:"+contact.tel[i])
 		if contact.teltype[i]=="NOTHING":
 			dest.write("TEL:"+contact.tel[i])
-								
-	##Process URLS			
+	#Reset for other stuff
+	preferred == False
+	temp = ""
+	
+	#Process addresses
+	for i in range(0,len(contact.address)):
+		temp="item"+str(itemcounter)+".ADR;type="+contact.addrtype[i]
+		if preferred == False:
+			temp=temp+";type=pref"
+			preferred=True
+		temp=temp+":"+contact.address[i]
+		dest.write(temp)
+		temp="item"+str(itemcounter)+".X-ABADR:it\n"
+		dest.write(temp)
+		itemcounter=itemcounter+1
+	#Reset for other stuff
+	preferred == False
+	temp = ""
+	
+	#Process URLs			
 	for i in range(0,len(contact.urladdr)):
 		if contact.urltype[i]=="NOTHING":
 			dest.write("item"+str(itemcounter)+".URL:"+contact.urladdr[i])
@@ -401,9 +442,10 @@ def iphonize(file,contact):
 			dest.write("URL;type=HOME:"+contact.urladdr[i])
 		if contact.urltype[i]=="home":
 			dest.write("URL;type=WORK:"+contact.urladdr[i])
-
+	#Reset for other stuff
+	preferred == False
 	
-	##Process notes and custom fields	
+	#Process notes and custom fields	
 	if contact.note!="":
 		temp = contact.note[:-1]
 	
