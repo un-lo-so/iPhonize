@@ -1,9 +1,8 @@
 import os
+import tkinter as tk
+from tkinter import filedialog
 import country_code_3166
 from enum import Enum, auto
-
-#TODO LIST
-#check the correctness of pref field for every field		  
 
 class Status(Enum):
 	NONE = auto()
@@ -272,35 +271,35 @@ class Contact:
 				self.custom4=self.custom4[:-1]+line[1:]
 
 	def print_data(self):
-		print("Name line => "+self.name)
-		print("Displayname line => "+self.displayname)
-		print("Nickname line => "+self.nickname)
-		print("UID line => "+self.uid)
+		print("Name line => "+self.name[:-1])
+		print("Displayname line => "+self.displayname[:-1])
+		print("Nickname line => "+self.nickname[:-1])
+		print("UID line => "+self.uid[:-1])
 			
-		print("ORG line => "+self.org)		
-		print("ROLE line => "+self.role)	
-		print("TITLE line => "+self.title)	
+		print("ORG line => "+self.org[:-1])		
+		print("ROLE line => "+self.role[:-1])	
+		print("TITLE line => "+self.title[:-1])	
 			
-		print("NOTE line => "+self.note)
-		print("Custom1 line => "+self.custom1)
-		print("Custom2 line => "+self.custom2)
-		print("Custom3 line => "+self.custom3)
-		print("Custom4 line => "+self.custom4)
+		print("NOTE line => "+self.note[:-1])
+		print("Custom1 line => "+self.custom1[:-1])
+		print("Custom2 line => "+self.custom2[:-1])
+		print("Custom3 line => "+self.custom3[:-1])
+		print("Custom4 line => "+self.custom4[:-1])
 		
 		#Print all telephone
 		for i in range(0,len(self.tel)):
-			print("TELEPHONE: "+self.teltype[i]+" "+self.tel[i])
+			print("TELEPHONE: "+self.teltype[i]+" "+self.tel[i][:-1])
 		
 		#Print all emails
 		for i in range(0,len(self.emailaddr)):
 			if self.prefemail==i:
 				print("Preferred:")
-			print("EMAIL: "+self.emailtype[i]+" "+self.emailaddr[i])
+			print("EMAIL: "+self.emailtype[i]+" "+self.emailaddr[i][:-1])
 		
-		print("Time zone => "+self.timezone)
+		print("Time zone => "+self.timezone[:-1])
 		
 		for i in range(0,len(self.urladdr)):
-			print("URL: "+self.urltype[i]+" "+self.urladdr[i])
+			print("URL: "+self.urltype[i]+" "+self.urladdr[i][:-1])
 		
 		for i in range(0,len(self.anniversary)):
 			print("ANNIVERSARY: YEAR="+self.anniversary[i]["year"]+"\t MONTH="+self.anniversary[i]["month"]+"\t DAY="+self.anniversary[i]["day"])
@@ -309,7 +308,7 @@ class Contact:
 			print("BIRTHDAY: YEAR="+self.birthday["year"]+"\t MONTH="+self.birthday["month"]+"\t DAY="+self.birthday["day"])
 				
 		for i in range(0,len(self.address)):
-			print("ADDRESS: "+self.addrtype[i]+" "+self.address[i])
+			print("ADDRESS: "+self.addrtype[i]+" "+self.address[i][:-1])
 						
 #Write header of *.vcf file
 def header(file):
@@ -320,7 +319,6 @@ def header(file):
 #Write tail of *.vcf file
 def tail(file):
 	dest.write("END:VCARD\n")
-
 
 #iphonize function
 def iphonize(file,contact):
@@ -421,8 +419,8 @@ def iphonize(file,contact):
 			temp="item"+str(itemcounter)+".TEL"
 		
 		if contact.teltype[i]=="pager":		
-			temp="TEL;type=PAGER:"+contact.tel[i]
-		
+			temp="TEL;type=PAGER"
+			
 		if contact.teltype[i]=="NOTHING":
 			temp="TEL"		
 		
@@ -442,7 +440,11 @@ def iphonize(file,contact):
 	
 	#Process addresses
 	for i in range(0,len(contact.address)):
-		temp="item"+str(itemcounter)+".ADR;type="+contact.addrtype[i]
+		temp="item"+str(itemcounter)+".ADR"
+		if contact.addrtype[i]=="NOTHING":
+			None 
+		else:
+			temp=temp+";type="+contact.addrtype[i]
 		if preferred == False:
 			temp=temp+";type=pref"
 			preferred=True
@@ -519,9 +521,6 @@ def iphonize(file,contact):
 		dest.write(temp)
 		dest.write("\n")
 		temp = ""
-	
-	
-
 		
 #Main
 collectedcontacts=[]	#Contact collected in the current file
@@ -529,13 +528,30 @@ collectedcontacts=[]	#Contact collected in the current file
 #found the instance return a fallback value (the string of constructor)
 countrycodeinstance=country_code_3166.country_code("Italia")
 
+#Create and hide the main window
+root = tk.Tk()
+root.withdraw()
 #Path where original *.vcf are stored
-path="."
+path=filedialog.askdirectory(title="Seleziona una cartella")
+
+if path=="":
+	print("Nothing to do")
+	exit()
+
+print("Searching *.vcf files in the following directory: "+path.replace("/","\\"))
+
 #Extract the list of all files in current directory
 file_list=os.listdir(path)
+vcf_files=[]
+for i in range(0,len(file_list)):
+	if file_list[i].endswith(".vcf") and not file_list[i].endswith(" - iphonize.vcf"):
+		vcf_files.append(file_list[i])
+print("The following files were processed:")
+for i in range (0,len(vcf_files)):
+	print(vcf_files[i])
 
 # for each .vcf file the "iphonize" procedure will be performed
-for k in file_list:
+for k in vcf_files:
 	if k[-4:]!=".vcf":
 		continue		#If current file isn't a *.vcf file skip to next item
 	else:
