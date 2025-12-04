@@ -401,19 +401,33 @@ def iphonize(file,contact):
 	#Write telephone fields
 	for i in range(0,len(contact.tel)):
 		if contact.teltype[i]=="work":
-			dest.write("TEL;type=WORK;type=VOICE;type=pref:"+contact.tel[i])
+			temp="TEL;type=WORK;type=VOICE"
+		
 		if contact.teltype[i]=="home":
-			dest.write("TEL;type=HOME;type=VOICE:"+contact.tel[i])
+			temp="TEL;type=HOME;type=VOICE"
+		
 		if contact.teltype[i]=="cell":
-			dest.write("TEL;type=CELL;type=VOICE:"+contact.tel[i])
+			temp="TEL;type=CELL;type=VOICE"
+		
 		if contact.teltype[i]=="fax":
-			dest.write("item"+str(itemcounter)+".TEL:"+contact.tel[i])
-			dest.write("item"+str(itemcounter)+".X-ABLabel:fax\n")
-			itemcounter=itemcounter+1
-		if contact.teltype[i]=="pager":	
-			dest.write("TEL;type=PAGER:"+contact.tel[i])
+			temp="item"+str(itemcounter)+".TEL"
+		
+		if contact.teltype[i]=="pager":		
+			temp="TEL;type=PAGER:"+contact.tel[i]
+		
 		if contact.teltype[i]=="NOTHING":
-			dest.write("TEL:"+contact.tel[i])
+			temp="TEL"		
+		
+		if preferred == False:
+			temp=temp+";type=pref"
+			preferred = True
+		
+		temp=temp+":"+contact.tel[i]
+		dest.write(temp)
+		
+		if contact.teltype[i]=="fax":
+			dest.write("item"+str(itemcounter)+".X-ABLabel:fax\n")
+			itemcounter=itemcounter+1	
 	#Reset for other stuff
 	preferred == False
 	temp = ""
