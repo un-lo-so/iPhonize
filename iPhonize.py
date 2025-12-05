@@ -353,7 +353,6 @@ def iphonize(file,contact):
 		file.write(contact.name)
 		file.write(contact.displayname)
 	
-	
 	file.write(contact.nickname)
 	
 	dest.write(contact.org)
@@ -429,9 +428,6 @@ def iphonize(file,contact):
 	
 	#Write telephone fields
 	for i in range(0,len(contact.tel)):
-		print("aaaaaaaa"+str(contact.teltype))
-		print("aaaaaaaa"+str(contact.tel))
-		
 		if contact.teltype[i]=="work":
 			temp="TEL;type=WORK;type=VOICE"
 		
@@ -542,8 +538,11 @@ def iphonize(file,contact):
 		else:
 			temp="NOTE:Personalizzato 4:\\n"+buffer[:-1]	
 	
+		
 	#Write note field
 	if temp!="":
+		#Handle semicolon
+		temp=temp[0:5]+temp[5:].replace(";","\\;");
 		dest.write(temp)
 		dest.write("\n")
 		temp = ""
