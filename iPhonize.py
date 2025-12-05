@@ -191,18 +191,20 @@ class Contact:
 			
 		#Handle telephone fields
 		if line[0:3]=="TEL":
-			if line[3:15]==";VALUE=TEXT:":
-				#There aren't attributes
+			if line.find("TYPE=work")>0:
+				self.teltype.append("work")
+			if line.find("TYPE=home")>0:
+				self.teltype.append("home")
+			if line.find("TYPE=cell")>0:
+				self.teltype.append("cell")
+			if line.find("TYPE=fax")>0:
+				self.teltype.append("fax")
+			if line.find("TYPE=pager")>0:
+				self.teltype.append("pager")
+			if line.find("TYPE=")==-1:
 				self.teltype.append("NOTHING")
-				self.tel.append(line[15:])
-			else:
-				#There is an attribute
-				temp=line[9:line.find(";",10,15)]
-				self.teltype.append(temp)
-				
-				#Chatch from the first character AFTER ":"
-				temp=line[line.find(":",16)+1:]
-				self.tel.append(temp)
+			
+			self.tel.append(line[line.find(":")+1:])
 			self.LastAttrAcq=Status.TEL
 
 		if line[0:5]=="EMAIL":
@@ -427,6 +429,9 @@ def iphonize(file,contact):
 	
 	#Write telephone fields
 	for i in range(0,len(contact.tel)):
+		print("aaaaaaaa"+str(contact.teltype))
+		print("aaaaaaaa"+str(contact.tel))
+		
 		if contact.teltype[i]=="work":
 			temp="TEL;type=WORK;type=VOICE"
 		
