@@ -223,13 +223,13 @@ class Contact:
 						
 		#Parse URL fields
 		if line[0:3]=="URL":
-			if line[3]==":" :
+			if line.find("TYPE=")==-1:
 				#There aren't other attributes
 				self.urltype.append("NOTHING")
-				self.urladdr.append(line[4:])
+				self.urladdr.append(line[line.find(":")+1:])
 			else:
 				#There is a parameter
-				self.urltype.append(line[line.find(":")-4:line.find(":")])
+				self.urltype.append(line[line.find("TYPE=")+5:line.find("TYPE=")+5+4])
 				self.urladdr.append(line[line.find(":")+1:])
 			self.LastAttrAcq=Status.URL
 			
@@ -335,13 +335,13 @@ def iphonize(file,contact):
 	
 	dest.write(contact.org)
 	#process role and title
-	if contact.role=="" and contact.title== "":
+	if contact.role=="" and contact.title=="":
 		None 
-	if contact.role=="" and contact.title!= "":
+	if contact.role=="" and contact.title!="":
 		dest.write(contact.title)
-	if contact.role!="" and contact.title== "":
+	if contact.role!="" and contact.title=="":
 		dest.write("TITLE:"+contact.role[5:])
-	if contact.role!="" and contact.title!= "":
+	if contact.role!="" and contact.title!="":
 		dest.write(contact.title[:-1]+" "+contact.role[5:])
 	
 	#Process birthday
