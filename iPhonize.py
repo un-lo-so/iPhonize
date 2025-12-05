@@ -310,13 +310,13 @@ class Contact:
 		for i in range(0,len(self.address)):
 			print("ADDRESS: "+self.addrtype[i]+" "+self.address[i][:-1])
 						
-#Write header of *.vcf file
+#Write header of vCard
 def header(file):
 	file.write("BEGIN:VCARD\n")
 	file.write("VERSION:3.0\n")
 	file.write("PRODID:-//Apple Inc.//iPhone OS 15.7.7//EN\n")
 
-#Write tail of *.vcf file
+#Write tail of vCard
 def tail(file):
 	dest.write("END:VCARD\n")
 
@@ -579,12 +579,12 @@ for k in vcf_files:
 				print("Found "+str(len(collectedcontacts))+" contact in file '"+k+"'")
 				
 				#Create an "iphonize" *.vcf with all contacts
-				header(dest)
 				for i in collectedcontacts:
+					header(dest)
 					iphonize(dest,i)
+					tail(dest)
 					i.print_data()
-				tail(dest)
-		
+				
 				#Close files
 				source.close()
 				dest.close()
