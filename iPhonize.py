@@ -329,8 +329,29 @@ def iphonize(file,contact):
 	#Flag for preferred anniversary item
 	preferred = False
 	
-	file.write(contact.name)
-	file.write(contact.displayname)
+	if contact.displayname=="" and contact.name=="":
+		file.write("N:;;;;\n")
+	if contact.displayname=="" and contact.name!="":
+		file.write(contact.name)
+		#If only name is present provide also the display name
+		temp=contact.name[2:]
+		list=temp[:-1].split(";")
+		temp=""
+		#Delete all null elements
+		list_purged=[x for x in list if x!=""]
+		temp=list_purged[0]
+		for i in range(1,len(list_purged)):
+			temp=temp+" "+list_purged[i]
+		file.write("FN:"+temp+"\n")
+		temp=""
+	if contact.displayname!="" and contact.name=="":
+		file.write("N:"+contact.displayname[3:])
+		file.write(contact.displayname)
+	if contact.displayname!="" and contact.name!="":
+		file.write(contact.name)
+		file.write(contact.displayname)
+	
+	
 	file.write(contact.nickname)
 	
 	dest.write(contact.org)
